@@ -293,8 +293,48 @@ All the above is great and all, but what if we need to use this configuration wi
 wouldn't it be cool if we could just abstract all of it away? Let's move it into a module and get it out of our project 
 code
 
+The contexts map that was in locals.tf has been moved to `example-5/modules/contexts.tf` and the loops and merges were
+moved into `example-5/modules/main.tf`. The workspace is now being set via the variable declaration in variables.tf.
 
+Now locals.tf just looks like this:
+```terraform
+locals {
+  workspace = terraform.workspace
 
+  organisation-id = module.global.organisation-id
+  network         = module.global.network
+  subnet          = module.global.subnet
+  region          = module.global.region
+  country         = module.global.country
+  environment     = module.global.environment
+  timezone        = module.global.timezone
+  time-offset     = module.global.time-offset
+  k8s-max-nodes   = module.global.k8s-max-nodes
+  hub-subnet      = module.global.hub-subnet
+  env-timezone    = module.global.env-timezone
+}
 
+module "global" {
+  source = "./modules/global"
+  context = local.workspace
+}
+```
+
+Before ending the tutorial, we're going to add one more thing. We need to be able to calculate values based on settings 
+that might be set in environment or regions. To do this, we're going to loop through the contexts one final time like 
+this:
+
+```terraform
+  all = {
+    for context, v in local.all-contexts : context =>
+      merge(
+        v,
+        {env-timezone = "${v.environment-short}-${v.country}-${v.timezone}"}
+      )
+  }
+```
+
+This example is a bit silly, but it demonstrates how we can generate calculated strings based on cross domain 
+configuration. 
 
 

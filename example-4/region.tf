@@ -1,7 +1,7 @@
 locals {
   regions = {
     east = {
-      timezone = "PST"
+      timezone = "EST"
       time-offset = "-8"
     }
     west = {

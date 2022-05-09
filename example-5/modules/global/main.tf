@@ -1,4 +1,6 @@
 locals {
+  workspace = var.context
+
   //if the workspace is contained in the context map, use it, otherwise use the default context
   ctxtvar = contains(keys(local.contexts), local.workspace) ? local.workspace : "default"
 
@@ -21,12 +23,22 @@ locals {
   )
   }
 
-  subnet        = local.all-contexts[local.ctxtvar]["subnet"]
-  region        = local.all-contexts[local.ctxtvar]["region"]
-  country       = local.all-contexts[local.ctxtvar]["country"]
-  environment   = local.all-contexts[local.ctxtvar]["environment"]
-  timezone      = local.all-contexts[local.ctxtvar]["timezone"]
-  time-offset   = local.all-contexts[local.ctxtvar]["time-offset"]
-  k8s-max-nodes = local.all-contexts[local.ctxtvar]["k8s-max-nodes"]
-  hub-subnet    = local.all-contexts["infra"]["subnet"]
+  //now we can add values to the map that cut across domains like org/env/region
+  all = {
+    for context, v in local.all-contexts : context =>
+      merge(
+        v,
+        {env-timezone = "${v.environment-short}-${v.country}-${v.timezone}"}
+      )
+  }
+
+  subnet        = local.all[local.ctxtvar]["subnet"]
+  region        = local.all[local.ctxtvar]["region"]
+  country       = local.all[local.ctxtvar]["country"]
+  environment   = local.all[local.ctxtvar]["environment"]
+  timezone      = local.all[local.ctxtvar]["timezone"]
+  time-offset   = local.all[local.ctxtvar]["time-offset"]
+  k8s-max-nodes = local.all[local.ctxtvar]["k8s-max-nodes"]
+  hub-subnet    = local.all["infra"]["subnet"]
+  env-timezone  = local.all[local.ctxtvar]["env-timezone"]
 }

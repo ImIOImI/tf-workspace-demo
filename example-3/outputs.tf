@@ -1,4 +1,4 @@
-output "organization-id" {
+output "organisation-id" {
   value = local.organisation-id
 }
 

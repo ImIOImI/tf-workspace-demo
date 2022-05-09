@@ -1,4 +1,4 @@
-output "organization-id" {
+output "organisation-id" {
   value = local.organisation-id
 }
 
@@ -40,4 +40,8 @@ output "k8s-max-nodes" {
 
 output "hub-subnet" {
   value = local.hub-subnet
+}
+
+output "env-timezone" {
+  value = local.env-timezone
 }
