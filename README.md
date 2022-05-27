@@ -88,6 +88,19 @@ workspace = dev
 Note that the workspace has changed, but the organization-id remains the same. Now we have a variable that we can use to 
 help us associate values to a workspace
 
+Some of the commands that we'll be using that might be unfamiliar to you if you haven't worked with workspaces before 
+are the following:
+```terraform
+#add a new workspace
+terraform workspace new <workspace name>
+
+#show a list of all the workspaces that exist
+terraform workspace list
+
+#select a workspace to work with
+terraform workspace select <workspace name>
+```
+
 ## Example 2
 
 Next navigate to `example-2`. Here in the locals.tf file we have an example of how to define an organization wide 
@@ -337,4 +350,225 @@ this:
 This example is a bit silly, but it demonstrates how we can generate calculated strings based on cross domain 
 configuration. 
 
+## Conclusion
 
+This approach demonstrates an effective way to keep your Terraform code DRY. 
+
+## Apendix
+
+If you like the above approach, you can stop reading here. I'm adding the following to answer what I think are common 
+responses to this approach.
+
+### Why I Don't Use .tfvars Files
+
+The primary argument I have against using .tfvars for this kind of work is that if you're concerned about the verbosity 
+of the code already contained in this tutorial, then you should be incredibly concerned about the verbosity using 
+tfvars. The most straight forward approach to solving the same issue is to add a .tfvar file for every workspace and 
+pass it in to the terraform apply step at planning or apply time. Therefore, for each value that you need to output in 
+the global module you need to have an input via a tfvars file. Furthermore, you also have to add a variable to consume 
+the tfvar input. Let's run through the implications of this. 
+
+For demonstration purposes, here is the output of the `all-contexts` map in the global 
+module:
+
+```terraform
+all-contexts = {
+  "default" = {
+    "country" = "us"
+    "environment" = "dev"
+    "environment-long" = "development"
+    "environment-short" = "dev"
+    "k8s-max-nodes" = 10
+    "region" = "east"
+    "subnet" = "10.0.0.0/24"
+    "time-offset" = "-8"
+    "timezone" = "EST"
+  }
+  "dev" = {
+    "country" = "us"
+    "environment" = "dev"
+    "environment-long" = "development"
+    "environment-short" = "dev"
+    "k8s-max-nodes" = 10
+    "region" = "east"
+    "subnet" = "10.0.1.0/24"
+    "time-offset" = "-8"
+    "timezone" = "EST"
+  }
+  "infra" = {
+    "country" = "us"
+    "environment" = "dev"
+    "environment-long" = "development"
+    "environment-short" = "dev"
+    "k8s-max-nodes" = 10
+    "region" = "east"
+    "subnet" = "10.0.2.0/24"
+    "time-offset" = "-8"
+    "timezone" = "EST"
+  }
+  "prod-east" = {
+    "country" = "us"
+    "environment" = "prod"
+    "environment-long" = "production"
+    "environment-short" = "prd"
+    "k8s-max-nodes" = 30
+    "region" = "east"
+    "subnet" = "10.0.5.0/24"
+    "time-offset" = "-8"
+    "timezone" = "EST"
+  }
+  "prod-west" = {
+    "country" = "us"
+    "environment" = "prod"
+    "environment-long" = "production"
+    "environment-short" = "prd"
+    "k8s-max-nodes" = 30
+    "region" = "west"
+    "subnet" = "10.0.6.0/24"
+    "time-offset" = "-5"
+    "timezone" = "PST"
+  }
+  "stage-east" = {
+    "country" = "us"
+    "environment" = "stage"
+    "environment-long" = "staging"
+    "environment-short" = "stg"
+    "k8s-max-nodes" = 30
+    "region" = "east"
+    "subnet" = "10.0.3.0/24"
+    "time-offset" = "-8"
+    "timezone" = "EST"
+  }
+  "stage-west" = {
+    "country" = "us"
+    "environment" = "stage"
+    "environment-long" = "staging"
+    "environment-short" = "stg"
+    "k8s-max-nodes" = 30
+    "region" = "west"
+    "subnet" = "10.0.4.0/24"
+    "time-offset" = "-5"
+    "timezone" = "PST"
+  }
+}
+```
+
+For the 6 contexts we have here we have 9 possible outputs which means we require 54 .tfvar entries like this:
+```terraform
+# dev.tfvars  values
+country = "us"
+environment = "dev"
+environment-long = "development"
+environment-short = "dev"
+k8s-max-nodes = 10
+region = "east"
+subnet = "10.0.0.0/24"
+time-offset = "-8"
+timezone = "EST"
+#infra.tfvars values
+country = "us"
+environment = "dev"
+environment-long = "development"
+environment-short = "dev"
+k8s-max-nodes = 10
+region = "east"
+subnet = "10.0.2.0/24"
+time-offset = "-8"
+timezone = "EST"
+#... etc
+```
+After that, we need to add variables for each of the above lines like: 
+```terraform
+variable "country" {
+  type = string
+}
+variable "environment" {
+  type = string
+}
+#etc...
+```
+Then when we apply the terraform code, we do something like:
+```shell
+terraform apply -var-file="dev.tfvars"
+```
+My issue here is that the maintainability of this over time becomes difficult
+```
+Let W = workspaces
+Let V = variables
+Let I = number of tfvars inputs
+
+I = WV
+```
+
+This means any new addition expands the necessary code quadratically. I can tell you from experience, that this becomes 
+harder and harder to maintain overtime. 
+
+We can cut this down by using variables with defaults and override specific values in specific tfvars files.  
+
+It is true that you can take a similar approach to what I did here and use variables with defaults and tfvars to substitute values into the 
+contexts/environments/region maps like:
+
+```terraform
+variable "country" {
+  default = "us"
+  type = string
+}
+variable "environment" {
+  default = "dev"
+  type = string
+}
+variable "region" {
+  default = "east"
+  type = string
+}
+locals {
+  country     = var.country
+  environment = var.environment
+  region      = var.region
+  #etc...
+}
+```
+
+This isn't terrible, but remember how we had other values that were strongly coupled to environment and region? Now, 
+we're forced to define them in every tfvars file and fall victim to the `I = WV` quadratic expansion of definitions in 
+the tfvars files, again or we could do the following:
+
+```terraform
+variable "country" {
+  default = "us"
+  type = string
+}
+variable "environment" {
+  default = "dev"
+  type = string
+}
+variable "region" {
+  default = "east"
+  type = string
+}
+locals {
+  country     = var.country
+  environment = var.environment
+  region      = var.region
+  #etc...
+  
+  regions = {
+    east = {
+      timezone = "EST"
+      time-offset = "-8"
+    }
+    west = {
+      timezone = "PST"
+      time-offset = "-5"
+    }
+  }
+  
+  timezone = locals.regions[local.region]["timezone"]
+  timezone = locals.regions[local.region]["time-offset"]
+}
+```
+That's a great approach, but that kinda leads us full circle again, doesn't it? Why not define the rest of the variables 
+that way at this point? Furthermore, I contend that it's much easier to understand the general configuration of all your 
+infrastructure in my original approach. It deliberately has all the contexts/regions/environments defined next to each 
+other and it's easier to understand which value flows into which context. Ultimately, in the long run I don't think the
+tfvars approach saves any complexity and suffers from a deficit in readability. 
