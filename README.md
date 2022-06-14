@@ -16,7 +16,9 @@ I recommend cloning this repo locally and installing [tfenv](https://github.com/
 version manager that's killer useful). However, this demo should be compatible with Terraform 0.12+. I'm keeping 
 everything simple and constraining it to variables and outputs, no resources will be created, so no AWS/AZ/GCP accounts 
 are necessary. Each of the examples is meant to gradually build on what we learned with the last example, so I don't 
-just dump all the complication of the final version on the reader all at once. 
+just dump all the complication of the final version on the reader all at once. All you need to do is navigate into the 
+example folders and start running the Terraform commands. Feel free to explore a little and figure out what 
+configurations output what results in each workspace.
 
 ## Example 1
 
