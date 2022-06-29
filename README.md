@@ -362,7 +362,8 @@ I lied about not creating actual resources in the intro, but don't feel like it'
 sharing this article a couple times, I found that the simplistic way of creating just outputs wasn't always sufficient 
 to show how this works in resources. Therefore, I created this example to build on what we learned in example 5.
 
-
+This example shows how you could create a resource group, vnet, compute and database subnets and a virtual machine in 
+each workspace using the methods discussed above.
 
 ## Conclusion
 
