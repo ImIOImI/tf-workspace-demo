@@ -1,14 +1,14 @@
 locals {
   regions = {
     east = {
-      timezone    = "EST"
+      timezone = "EST"
       time-offset = "-8"
-      location    = "East US"
+      location = "East US"
     }
     west = {
-      timezone    = "PST"
+      timezone = "PST"
       time-offset = "-5"
-      location    = "West US"
+      location = "West US"
     }
   }
 }

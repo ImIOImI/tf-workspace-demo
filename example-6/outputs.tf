@@ -45,7 +45,3 @@ output "hub-subnet" {
 output "env-timezone" {
   value = local.env-timezone
 }
-
-output "location" {
-  value = local.location
-}

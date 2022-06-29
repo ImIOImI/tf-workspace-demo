@@ -18,7 +18,11 @@ everything simple and constraining it to variables and outputs, no resources wil
 are necessary. Each of the examples is meant to gradually build on what we learned with the last example, so I don't 
 just dump all the complication of the final version on the reader all at once. All you need to do is navigate into the 
 example folders and start running the Terraform commands. Feel free to explore a little and figure out what 
-configurations output what results in each workspace.
+configurations output what results in each workspace. I give examples of terraform cli commands early in this demo, then 
+I expect a reader to repeat them in subsequent examples to see how outputs change based on which workspace they're in. 
+Furthermore, I expect a reader to examine the Terraform code as well. I attempt to pull out important examples in this 
+README, but to get full understanding the reader really needs to look at the code and compare it's changes to subsequent 
+examples.
 
 ## Example 1
 
@@ -351,6 +355,12 @@ this:
 
 This example is a bit silly, but it demonstrates how we can generate calculated strings based on cross domain 
 configuration. 
+
+## Example 6 (bonus)
+
+I lied about not creating actual resources in the intro, but don't feel like it's necessary to run this section. After 
+sharing this article a couple times, I found that the simplistic way of creating just outputs wasn't always sufficient 
+to show how this works in resources. Therefore, I created this example to build on what we learned in example 5.
 
 ## Conclusion
 

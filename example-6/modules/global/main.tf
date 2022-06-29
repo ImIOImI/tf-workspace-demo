@@ -32,14 +32,14 @@ locals {
       )
   }
 
-  subnet        = local.all[local.ctxtvar]["subnet"]
-  region        = local.all[local.ctxtvar]["region"]
-  country       = local.all[local.ctxtvar]["country"]
   environment   = local.all[local.ctxtvar]["environment"]
-  location      = local.all[local.ctxtvar]["location"]
-  timezone      = local.all[local.ctxtvar]["timezone"]
-  time-offset   = local.all[local.ctxtvar]["time-offset"]
+  env-timezone  = local.all[local.ctxtvar]["env-timezone"]
+  country       = local.all[local.ctxtvar]["country"]
   k8s-max-nodes = local.all[local.ctxtvar]["k8s-max-nodes"]
   hub-subnet    = local.all["infra"]["subnet"]
-  env-timezone  = local.all[local.ctxtvar]["env-timezone"]
+  location      = local.all[local.ctxtvar]["location"]
+  region        = local.all[local.ctxtvar]["region"]
+  subnet        = local.all[local.ctxtvar]["subnet"]
+  timezone      = local.all[local.ctxtvar]["timezone"]
+  time-offset   = local.all[local.ctxtvar]["time-offset"]
 }
